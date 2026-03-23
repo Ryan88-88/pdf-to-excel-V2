@@ -8,7 +8,7 @@ def process_pdf_file(pdf_path, final_path):
     temp_excel = "temp_output.xlsx"
 
     # ===============================
-    # Step 1 PDF → Excel
+    # Step 1 PDF 转 Excel
     # ===============================
     with pdfplumber.open(pdf_path) as pdf:
         writer = pd.ExcelWriter(temp_excel, engine='openpyxl')
@@ -25,8 +25,10 @@ def process_pdf_file(pdf_path, final_path):
 
         writer.close()
 
+    print("PDF extraction finished.")
+
     # ===============================
-    # Step 2 自动读取（适配不同PDF）
+    # Step 2 读取 Excel（⚠️ 唯一适配修改：自动找sheet）
     # ===============================
     all_sheets = pd.read_excel(temp_excel, sheet_name=None, header=None)
     sheet_names = list(all_sheets.keys())
@@ -47,7 +49,7 @@ def process_pdf_file(pdf_path, final_path):
     ws_ds = wb.create_sheet("DS")
 
     # ===============================
-    # 列索引
+    # 列索引（完全保留）
     # ===============================
     col_D = 3
     col_E = 4
@@ -60,7 +62,7 @@ def process_pdf_file(pdf_path, final_path):
     col_Q = 16
 
     # ===============================
-    # 清理函数
+    # 清理转数字函数（完全保留）
     # ===============================
     def clean_and_convert(val):
         if pd.isna(val) or val == "":
@@ -71,7 +73,7 @@ def process_pdf_file(pdf_path, final_path):
             return val
 
     # ===============================
-    # 标题
+    # 标题（完全保留）
     # ===============================
     ws_ns.append([
         df1.iloc[8, col_D],
@@ -86,7 +88,7 @@ def process_pdf_file(pdf_path, final_path):
     ])
 
     # ===============================
-    # NS 数据
+    # NS 数据（完全保留）
     # ===============================
     for r in range(10, 65):
 
@@ -113,7 +115,7 @@ def process_pdf_file(pdf_path, final_path):
             ])
 
     # ===============================
-    # DS 数据
+    # DS 数据（完全保留）
     # ===============================
     for r in range(11, 66):
 
@@ -140,7 +142,7 @@ def process_pdf_file(pdf_path, final_path):
             ])
 
     # ===============================
-    # 转数字
+    # 数据转数字（完全保留！！）
     # ===============================
     def convert_sheet(ws):
         max_row = ws.max_row
@@ -162,7 +164,7 @@ def process_pdf_file(pdf_path, final_path):
     convert_sheet(ws_ds)
 
     # ===============================
-    # 列重排（完整保留）
+    # 列剪切重排（完全保留！！）
     # ===============================
     def rearrange_sheet(ws):
 
@@ -210,7 +212,6 @@ def process_pdf_file(pdf_path, final_path):
             ws.cell(r, 9).value = col_F[r - 1]
             ws.cell(r, 6).value = None
 
-        # 拆分
         for r in range(2, max_row + 1):
             val = ws.cell(r, 11).value
             if val:
@@ -234,7 +235,7 @@ def process_pdf_file(pdf_path, final_path):
     rearrange_sheet(ws_ds)
 
     # ===============================
-    # 删除列
+    # 删除列（完全保留）
     # ===============================
     ws_ns.delete_cols(11)
     ws_ns.delete_cols(10)
@@ -247,3 +248,6 @@ def process_pdf_file(pdf_path, final_path):
     # ===============================
     wb.save(final_path)
     os.remove(temp_excel)
+
+    print("All processing complete. Final file saved to:")
+    print(final_path)
